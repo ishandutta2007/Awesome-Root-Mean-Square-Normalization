@@ -81,3 +81,14 @@ While RMSNorm optimizes hardware processing efficiency, its implementation requi
 | [**Autoregressive LLM Base Pre-Training Pipelines**](docs/autoregressive_llm_pretraining.md) | Acts as the baseline stabilization layer for modern foundational models. RMSNorm's hardware efficiency permits stable cluster-wide training over trillions of tokens, maximizing the token-per-second computing utilization of enterprise server setups. | 2019 | [Raffel et al., 2019 (T5)](https://arxiv.org/abs/1910.10683) |
 | [**High-Throughput Production Inference Engines (vLLM / Triton)**](docs/production_inference_engines.md) | Integrated into cloud serving systems. Normalization operators are compiled into custom **Fused Triton Kernels** that execute up-projection, activation scaling, and normalization within GPU SRAM registers simultaneously, minimizing user response latency. | 2023 | [Kwon et al., 2023 (vLLM)](https://arxiv.org/abs/2309.06180) |
 | [**Massive Mixture-of-Experts (MoE) Architecture Topologies**](docs/mixture_of_experts_topologies.md) | Deployed across the dense routing intersections of multi-expert networks (like DeepSeek-V3). RMSNorm stabilizes the token parameter inputs right before they enter sparse gating layers, ensuring crisp expert selection across deep distributed network nodes. | 2021 | [Fedus et al., 2021 (Switch Transformers)](https://arxiv.org/abs/2101.03961) |
+
+##  Star History
+<div align="center">
+<a href="https://www.star-history.com/?repos=ishandutta2007%2FAwesome-Root-Mean-Square-Normalization&type=date&legend=bottom-right">
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=ishandutta2007/Awesome-Root-Mean-Square-Normalization&type=date&theme=dark&legend=bottom-right" />
+<source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=ishandutta2007/Awesome-Root-Mean-Square-Normalization&type=date&legend=bottom-right" />
+<img alt="Star History Chart" src="https://api.star-history.com/chart?repos=ishandutta2007/Awesome-Root-Mean-Square-Normalization&type=date&legend=bottom-right" />
+</picture>
+</a>
+</div>
