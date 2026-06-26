@@ -16,15 +16,11 @@ flowchart LR
     --> C["RMSNorm (2019-Present)<br/>(Single-Pass Scale-Only Variance)"]
 ```
 
-*   **The Batch Dependency Era (Batch Normalization, ~2015–2016)**
-    *   *Concept:* The foundation era. Normalized feature activations across the entire mini-batch dimension to resolve internal covariate shift.
-    *   *Limitation:* Rigidly bound to the batch size. It degraded severely on small batch sizes and was structurally incompatible with the sequential, dynamic processing needs of Recurrent Neural Networks (RNNs) and early Transformers.
-*   **The Two-Pass Structural Era (Layer Normalization, ~2016–2019)**
-    *   *Concept:* Popularized by Ba et al. Shifted normalization inside the individual sample, calculating both the mean ($\mu$) and variance ($\sigma^2$) across all hidden channels independently of batch bounds.
-    *   *Limitation:* Computationally latent. It requires a strict two-pass read over the activation tensor layer (one pass to find the mean, and a second pass to compute cumulative variance deviations), creating a memory bandwidth bottleneck on GPUs.
-*   **The Scale-Only Layer Revolution (RMSNorm, 2019–Present)**
-    *   *Concept:* Replaced full layer variance metrics with a single-pass root mean square statistic. It enforces the scaling properties of LayerNorm while dropping the mean calculation entirely.
-    *   *Significance:* The standard default normalization architecture for modern frontier Large Language Models (e.g., Llama 3, Mistral, Gemma, DeepSeek-V3).
+| Evolution Stage | Description / Analysis | Year | First Paper |
+| :--- | :--- | :--- | :--- |
+| **The Batch Dependency Era (Batch Normalization, ~2015–2016)** | **Concept:** The foundation era. Normalized feature activations across the entire mini-batch dimension to resolve internal covariate shift.<br><br>**Limitation:** Rigidly bound to the batch size. It degraded severely on small batch sizes and was structurally incompatible with the sequential, dynamic processing needs of Recurrent Neural Networks (RNNs) and early Transformers. | 2015 | [Ioffe & Szegedy, 2015](https://arxiv.org/abs/1502.03167) |
+| **The Two-Pass Structural Era (Layer Normalization, ~2016–2019)** | **Concept:** Popularized by Ba et al. Shifted normalization inside the individual sample, calculating both the mean ($\mu$) and variance ($\sigma^2$) across all hidden channels independently of batch bounds.<br><br>**Limitation:** Computationally latent. It requires a strict two-pass read over the activation tensor layer (one pass to find the mean, and a second pass to compute cumulative variance deviations), creating a memory bandwidth bottleneck on GPUs. | 2016 | [Ba et al., 2016](https://arxiv.org/abs/1607.06450) |
+| **The Scale-Only Layer Revolution (RMSNorm, 2019–Present)** | **Concept:** Replaced full layer variance metrics with a single-pass root mean square statistic. It enforces the scaling properties of LayerNorm while dropping the mean calculation entirely.<br><br>**Significance:** The standard default normalization architecture for modern frontier Large Language Models (e.g., Llama 3, Mistral, Gemma, DeepSeek-V3). | 2019 | [Zhang & Sennrich, 2019](https://arxiv.org/abs/1910.07467) |
 
 ---
 
@@ -32,14 +28,11 @@ flowchart LR
 
 RMSNorm modifies standard normalization formulas to isolate vector scaling factors, scaling features through a streamlined mathematical pipeline.
 
-*   **Standard RMSNorm**
-    *   *Equation:* $\text{RMSNorm}(x) = \frac{x}{\text{RMS}(x)} \odot \gamma, \quad \text{where} \quad \text{RMS}(x) = \sqrt{\frac{1}{d} \sum_{i=1}^{d} x_i^2 + \epsilon}$
-    *   *Mechanism:* Divides the input vector element-wise by its root mean square, scaling the normalized output by a learnable gain parameter ($\gamma$) to preserve layer capacity.
-*   **Partial RMSNorm (pRMSNorm)**
-    *   *Mechanism:* An ultra-lightweight variant that calculates the root mean square metric over only a fixed fraction (e.g., the first $p\%$) of the hidden channel dimensions rather than reading the entire vector.
-    *   *Pros:* Further minimizes memory bandwidth consumption, offering high scaling resolution for massive wide-hidden layers ($d_{model} \ge 8192$).
-*   **DeepNorm / Stable Normalization Variants**
-    *   *Mechanism:* Pairs RMSNorm scaling metrics with custom weight initialization constants specifically engineered to bound gradient growth in ultra-deep transformer stacks ($>100$ layers), preventing initialization-stage training explosions.
+| Variant | Mechanism & Details | Year | First Paper |
+| :--- | :--- | :--- | :--- |
+| **Standard RMSNorm** | **Equation:** $\text{RMSNorm}(x) = \frac{x}{\text{RMS}(x)} \odot \gamma, \quad \text{where} \quad \text{RMS}(x) = \sqrt{\frac{1}{d} \sum_{i=1}^{d} x_i^2 + \epsilon}$<br><br>**Mechanism:** Divides the input vector element-wise by its root mean square, scaling the normalized output by a learnable gain parameter ($\gamma$) to preserve layer capacity. | 2019 | [Zhang & Sennrich, 2019](https://arxiv.org/abs/1910.07467) |
+| **Partial RMSNorm (pRMSNorm)** | **Mechanism:** An ultra-lightweight variant that calculates the root mean square metric over only a fixed fraction (e.g., the first $p\%$) of the hidden channel dimensions rather than reading the entire vector.<br><br>**Pros:** Further minimizes memory bandwidth consumption, offering high scaling resolution for massive wide-hidden layers ($d_{model} \ge 8192$). | 2019 | [Zhang & Sennrich, 2019](https://arxiv.org/abs/1910.07467) |
+| **DeepNorm / Stable Normalization Variants** | **Mechanism:** Pairs RMSNorm scaling metrics with custom weight initialization constants specifically engineered to bound gradient growth in ultra-deep transformer stacks ($>100$ layers), preventing initialization-stage training explosions. | 2022 | [Wang et al., 2022](https://arxiv.org/abs/2203.00555) |
 
 ---
 
@@ -47,12 +40,10 @@ RMSNorm modifies standard normalization formulas to isolate vector scaling facto
 
 Integrating RMSNorm shifts the performance profile of deep networks, delivering hardware-level optimization advantages over standard alternatives.
 
-*   **The Single-Pass Memory Advantage**
-    *   *Standard LayerNorm Execution:* Requires the hardware kernel to read the activation tensor from memory $\rightarrow$ compute mean $\rightarrow$ write to memory $\rightarrow$ read again $\rightarrow$ compute variance $\rightarrow$ apply scaling.
-    *   *RMSNorm Execution:* Computes the square of each element progressively. It evaluates the cumulative scaling metric in a **single forward pass**, cutting hardware memory access cycles (High Bandwidth Memory read/writes) precisely in half.
-*   **Computational Footprint Reduction**
-    *   *Efficiency Overhead:* Discarding mean tracking removes multiple element-wise subtraction and division steps across billions of active token iterations.
-    *   *Wall-Clock Gains:* Translates directly into a measurable $10\%$ to $50\%$ execution speedup for the isolated normalization kernel blocks, boosting overall training throughput.
+| Advantage / Gain | Technical Execution & Impact | Year | First Paper |
+| :--- | :--- | :--- | :--- |
+| **The Single-Pass Memory Advantage** | **Standard LayerNorm Execution:** Requires the hardware kernel to read the activation tensor from memory $\rightarrow$ compute mean $\rightarrow$ write to memory $\rightarrow$ read again $\rightarrow$ compute variance $\rightarrow$ apply scaling.<br><br>**RMSNorm Execution:** Computes the square of each element progressively. It evaluates the cumulative scaling metric in a **single forward pass**, cutting hardware memory access cycles (High Bandwidth Memory read/writes) precisely in half. | 2019 | [Zhang & Sennrich, 2019](https://arxiv.org/abs/1910.07467) |
+| **Computational Footprint Reduction** | **Efficiency Overhead:** Discarding mean tracking removes multiple element-wise subtraction and division steps across billions of active token iterations.<br><br>**Wall-Clock Gains:** Translates directly into a measurable $10\%$ to $50\%$ execution speedup for the isolated normalization kernel blocks, boosting overall training throughput. | 2019 | [Zhang & Sennrich, 2019](https://arxiv.org/abs/1910.07467) |
 
 ---
 
@@ -60,20 +51,17 @@ Integrating RMSNorm shifts the performance profile of deep networks, delivering 
 
 While RMSNorm optimizes hardware processing efficiency, its implementation requires deliberate framework configurations to safeguard numerical stability.
 
-*   **The Numerical Underflow Hazard ($\epsilon$ Placement)**
-    *   *The Problem:* If a sequence layer outputs a vector composed completely of zeroes or near-zero parameters, the denominator $\text{RMS}(x)$ collapses to absolute zero, triggering division-by-zero or NaN (Not-a-Number) errors that ruin model training.
-    *   *Mitigation:* Injecting a strict, hardware-safe variance stabilizer parameter ($\epsilon \approx 1\text{e-}5$ or $1\text{e-}6$) directly inside the square-root denominator loop to maintain mathematical stability.
-*   **The Deep-Layer Scale Drift Dilemma**
-    *   *The Problem:* Because RMSNorm lacks mean centering, deep layers can experience a gradual shifting or drift in absolute activation averages across a 100-layer network graph, leading to minor downstream capacity saturation.
-    *   *Mitigation:* Layering RMSNorm alongside highly optimized **Pre-Layer Normalization architectures** (placing the normalization block right before self-attention and MLP blocks, rather than after them) to reset activation distributions cleanly at each step.
+| Challenge / Dilemma | Problem & Mitigation | Year | First Paper |
+| :--- | :--- | :--- | :--- |
+| **The Numerical Underflow Hazard ($\epsilon$ Placement)** | **The Problem:** If a sequence layer outputs a vector composed completely of zeroes or near-zero parameters, the denominator $\text{RMS}(x)$ collapses to absolute zero, triggering division-by-zero or NaN (Not-a-Number) errors that ruin model training.<br><br>**Mitigation:** Injecting a strict, hardware-safe variance stabilizer parameter ($\epsilon \approx 1\text{e-}5$ or $1\text{e-}6$) directly inside the square-root denominator loop to maintain mathematical stability. | 2019 | [Zhang & Sennrich, 2019](https://arxiv.org/abs/1910.07467) |
+| **The Deep-Layer Scale Drift Dilemma** | **The Problem:** Because RMSNorm lacks mean centering, deep layers can experience a gradual shifting or drift in absolute activation averages across a 100-layer network graph, leading to minor downstream capacity saturation.<br><br>**Mitigation:** Layering RMSNorm alongside highly optimized **Pre-Layer Normalization architectures** (placing the normalization block right before self-attention and MLP blocks, rather than after them) to reset activation distributions cleanly at each step. | 2018 | [Baevski & Auli, 2018](https://arxiv.org/abs/1809.10853) |
 
 ---
 
 ## 5. Frontier Real-World AI Applications
 
-*   **Autoregressive LLM Base Pre-Training Pipelines**
-    *   *Application:* Acts as the baseline stabilization layer for modern foundational models. RMSNorm's hardware efficiency permits stable cluster-wide training over trillions of tokens, maximizing the token-per-second computing utilization of enterprise server setups.
-*   **High-Throughput Production Inference Engines (vLLM / Triton)**
-    *   *Application:* Integrated into cloud serving systems. Normalization operators are compiled into custom **Fused Triton Kernels** that execute up-projection, activation scaling, and normalization within GPU SRAM registers simultaneously, minimizing user response latency.
-*   **Massive Mixture-of-Experts (MoE) Architecture Topologies**
-    *   *Application:* Deployed across the dense routing intersections of multi-expert networks (like DeepSeek-V3). RMSNorm stabilizes the token parameter inputs right before they enter sparse gating layers, ensuring crisp expert selection across deep distributed network nodes.
+| Application | Description & Usage | Year | First Paper |
+| :--- | :--- | :--- | :--- |
+| **Autoregressive LLM Base Pre-Training Pipelines** | Acts as the baseline stabilization layer for modern foundational models. RMSNorm's hardware efficiency permits stable cluster-wide training over trillions of tokens, maximizing the token-per-second computing utilization of enterprise server setups. | 2019 | [Raffel et al., 2019 (T5)](https://arxiv.org/abs/1910.10683) |
+| **High-Throughput Production Inference Engines (vLLM / Triton)** | Integrated into cloud serving systems. Normalization operators are compiled into custom **Fused Triton Kernels** that execute up-projection, activation scaling, and normalization within GPU SRAM registers simultaneously, minimizing user response latency. | 2023 | [Kwon et al., 2023 (vLLM)](https://arxiv.org/abs/2309.06180) |
+| **Massive Mixture-of-Experts (MoE) Architecture Topologies** | Deployed across the dense routing intersections of multi-expert networks (like DeepSeek-V3). RMSNorm stabilizes the token parameter inputs right before they enter sparse gating layers, ensuring crisp expert selection across deep distributed network nodes. | 2021 | [Fedus et al., 2021 (Switch Transformers)](https://arxiv.org/abs/2101.03961) |
