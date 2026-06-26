@@ -1,11 +1,27 @@
-# Awesome-Root-Mean-Square-Normalization
-## Root Mean Square Normalization (RMSNorm): Evolution, Variants, Types, & Applications
+<!--
+Metadata for Search Engine Optimization (SEO):
+- Title: Awesome Root Mean Square Normalization (RMSNorm)
+- Description: A curated list of resources, variants, mathematical formulations, hardware benefits, and production engineering mitigations for Root Mean Square Normalization (RMSNorm).
+- Keywords: RMSNorm, LayerNorm, Batch Normalization, Deep Learning, Transformer, Large Language Models, PyTorch, Triton, vLLM, DeepNorm, Machine Learning, Optimization
+-->
+
+# Awesome Root Mean Square Normalization (RMSNorm) 🚀
+
+<p align="center">
+  <img src="assets/banner.svg" alt="Awesome Root Mean Square Normalization (RMSNorm) Banner" width="100%" />
+</p>
+
+<p align="center">
+  <a href="https://github.com/ishandutta2007/Awesome-Awesome-Awesome"><img src="https://img.shields.io/badge/Awesome-%E2%9C%94-blueviolet?style=flat-square&logo=github" alt="Awesome"/></a><a href="https://discord.gg/jc4xtF58Ve"><img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord" /></a><a href="https://github.com/ishandutta2007/Awesome-Root-Mean-Square-Normalization/stargazers"><img src="https://img.shields.io/github/stars/ishandutta2007/Awesome-Root-Mean-Square-Normalization?style=flat-square&color=blue" alt="Stars"/></a><a href="https://github.com/ishandutta2007/Awesome-Root-Mean-Square-Normalization/network/members"><img src="https://img.shields.io/github/forks/ishandutta2007/Awesome-Root-Mean-Square-Normalization?style=flat-square&color=orange" alt="Forks"/></a><a href="https://github.com/ishandutta2007/Awesome-Root-Mean-Square-Normalization/issues"><img src="https://img.shields.io/github/issues/ishandutta2007/Awesome-Root-Mean-Square-Normalization?style=flat-square&color=red" alt="Issues"/></a><a href="https://github.com/ishandutta2007"><img alt="GitHub followers" src="https://img.shields.io/github/followers/ishandutta2007?label=Follow" /></a>
+</p>
+
+## 📌 Root Mean Square Normalization (RMSNorm): Evolution, Variants, Types, & Applications
 
 Root Mean Square Normalization (RMSNorm) is a hardware-aware regularization and normalization technique designed to stabilize and accelerate the training of deep neural networks. Introduced by Zhang and Sennrich in 2019 ("Root Mean Square Layer Normalization"), RMSNorm serves as a highly efficient alternative to standard Layer Normalization (LayerNorm). It operates on the mathematical premise that the shift-invariance property of LayerNorm (centering data around a zero mean) contributes negligibly to training stability. By discarding the mean-centering calculation entirely and scaling activations purely by their root mean square, RMSNorm reduces computational overhead, halves memory read/write cycles, and optimizes training throughput while maintaining equivalent convergence accuracy.
 
 ---
 
-## 1. The Chronological Evolution
+## 1. The Chronological Evolution ⏳
 
 The implementation of architectural normalization within deep learning has transitioned from batch-level global statistics to sample-level feature properties, moving toward modern mean-free, scale-only hardware kernels.
 
@@ -24,7 +40,7 @@ flowchart LR
 
 ---
 
-## 2. Mathematical Formulations & Variants
+## 2. Mathematical Formulations & Variants 🧮
 
 RMSNorm modifies standard normalization formulas to isolate vector scaling factors, scaling features through a streamlined mathematical pipeline.
 
@@ -36,7 +52,7 @@ RMSNorm modifies standard normalization formulas to isolate vector scaling facto
 
 ---
 
-## 3. Hardware Alignment & Structural Engineering Gains
+## 3. Hardware Alignment & Structural Engineering Gains ⚡
 
 Integrating RMSNorm shifts the performance profile of deep networks, delivering hardware-level optimization advantages over standard alternatives.
 
@@ -47,7 +63,7 @@ Integrating RMSNorm shifts the performance profile of deep networks, delivering 
 
 ---
 
-## 4. Production Engineering Challenges & Mitigations
+## 4. Production Engineering Challenges & Mitigations 🛠️
 
 While RMSNorm optimizes hardware processing efficiency, its implementation requires deliberate framework configurations to safeguard numerical stability.
 
@@ -58,7 +74,7 @@ While RMSNorm optimizes hardware processing efficiency, its implementation requi
 
 ---
 
-## 5. Frontier Real-World AI Applications
+## 5. Frontier Real-World AI Applications 🌍
 
 | Application | Description & Usage | Year | First Paper |
 | :--- | :--- | :--- | :--- |
